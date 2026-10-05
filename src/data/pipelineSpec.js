@@ -1,6 +1,6 @@
 // Content for the "How it works" overlay. Descriptions and parameters mirror finals-sih2026.ipynb
 // (Config + stage functions); result numbers are derived from registrationResults.js, never typed here.
-import { ABLATION, STRESS, DEMO_PAIR } from './registrationResults.js'
+import { ABLATION, STRESS, RUNTIME_BUDGET_S } from './registrationResults.js'
 
 const [base, struct, spatial, full] = ABLATION
 const f2 = (v) => v.toFixed(2)
@@ -73,7 +73,7 @@ export const STEPS = [
     how: 'Warps B into A’s frame with the RANSAC model, runs local phase correlation in a 15 px window, and applies a shift only if it is under 2.5 px and raises the normalised cross-correlation.',
     why: 'This is the step that earns the sub-pixel claim. Naive phase correlation made accuracy worse under rotation, so refinement must prove it helps before it is applied.',
     params: ['window 15 px', 'max shift 2.5 px', 'NCC-gated'],
-    evidence: () => `RMSE ${f3(spatial.rmse)} → ${f3(full.rmse)} px (10-pair mean); demo pair ${f3(DEMO_PAIR.rmsePx)} px.`,
+    evidence: (demo) => `RMSE ${f3(spatial.rmse)} → ${f3(full.rmse)} px (10-pair mean)${demo ? `; demo pair ${f3(demo.rmsePx)} px` : ''}.`,
   },
   {
     id: 'R2', tag: 'R', name: 'REGISTERED OUTPUT & REPORT', status: 'prototype',
@@ -91,7 +91,7 @@ export const DELIVERABLES = [
   {
     goal: 'Sub-pixel RMSE', ps: true, big: `${f3(full.rmse)}`, sub: `px RMSE · mean of 10 pairs · baseline ${f3(base.rmse)}`, status: 'measured',
     how: 'Geometric verification (A) rejects wrong matches; gated phase correlation (E) refines the rest.',
-    result: `${f3(full.rmse)} px mean (baseline ${f3(base.rmse)}); demo pair ${f3(DEMO_PAIR.rmsePx)} px`,
+    result: `${f3(full.rmse)} px mean (baseline ${f3(base.rmse)})`,
     note: 'Against exact ground truth on synthetic warps.',
   },
   {
@@ -103,7 +103,7 @@ export const DELIVERABLES = [
   {
     goal: 'Uniform spatial distribution', ps: true, big: `${Math.round(full.coverage * 100)}%`, sub: `of 6×6 grid cells occupied · baseline ${Math.round(base.coverage * 100)}%`, status: 'partial',
     how: 'Grid quota (T): at most 6 points per cell of a 6×6 grid.',
-    result: `${Math.round(full.coverage * 100)}% of cells occupied on average (baseline ${Math.round(base.coverage * 100)}%); demo pair ${Math.round(DEMO_PAIR.gridCoverage * 100)}%`,
+    result: `${Math.round(full.coverage * 100)}% of cells occupied on average (baseline ${Math.round(base.coverage * 100)}%)`,
     note: 'No mean gain over baseline yet — needs work.',
   },
   {
@@ -113,9 +113,9 @@ export const DELIVERABLES = [
     note: 'Photometric proxy only; shadow-direction change is not tested.',
   },
   {
-    goal: 'Runtime within budget', ps: false, big: `${f2(full.runtime)}`, sub: `s per pair · budget ${DEMO_PAIR.budgetS} s`, status: 'measured',
+    goal: 'Runtime within budget', ps: false, big: `${f2(full.runtime)}`, sub: `s per pair · budget ${RUNTIME_BUDGET_S} s`, status: 'measured',
     how: 'Classical, CPU-only stages.',
-    result: `${f2(full.runtime)} s per pair (budget ${DEMO_PAIR.budgetS} s)`,
+    result: `${f2(full.runtime)} s per pair (budget ${RUNTIME_BUDGET_S} s)`,
     note: 'Notebook run; production hardware not benchmarked.',
   },
   {

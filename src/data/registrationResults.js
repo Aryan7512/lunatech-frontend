@@ -1,17 +1,25 @@
-// Numbers copied from the outputs of finals-sih2026.ipynb (LunaTech prototype v3,
-// real OHRC crops, synthetic-warp ground truth). Not re-computed here.
+// ABLATION and STRESS are 10-pair / 18-condition aggregates copied from the outputs of
+// finals-sih2026.ipynb (LunaTech prototype v3, real OHRC crops, synthetic-warp ground truth).
+// The single-pair export cannot reproduce them, so they stay copied, not re-computed here.
 // Caveats live in CAVEATS so the UI never shows results without them.
 
-export const DEMO_PAIR = {
-  points: 216,
-  rmsePx: 0.209,
-  medianPx: 0.126,
-  p90Px: 0.278,
-  subpixelRatio: 0.995,
-  gridCoverage: 1.0,
-  entropy: 1.0,
-  runtimeS: 2.15,
-  budgetS: 5.0,
+// Demo-pair numbers come from the live export (public/data/lunatech_export.json), never typed here.
+export const RUNTIME_BUDGET_S = 5.0
+
+export function demoPairFromExport(data) {
+  const m = data?.metrics
+  if (!m) return null
+  return {
+    points: m.n_matches,
+    rmsePx: m.rmse_px,
+    medianPx: m.median_err_px,
+    p90Px: m.p90_err_px,
+    subpixelRatio: m.inlier_ratio_subpixel,
+    gridCoverage: m.grid_occupied_frac,
+    entropy: m.grid_entropy_norm,
+    runtimeS: Object.values(data.timings_s ?? {}).reduce((a, b) => a + b, 0),
+    budgetS: RUNTIME_BUDGET_S,
+  }
 }
 
 export const ABLATION = [

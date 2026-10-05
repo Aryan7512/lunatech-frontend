@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import '../../pipeline.css'
 import { SCALE_LADDER, STEPS, CRITERIA, ALSO_MEASURED, NEXT_UP } from '../../data/pipelineSpec.js'
+import { demoPairFromExport } from '../../data/registrationResults.js'
 import { useLunatechExport } from '../../hooks/useLunatechExport.js'
 import { useCountUp } from '../../hooks/useCountUp.js'
 
@@ -83,7 +84,8 @@ export default function PipelineOverview({ onClose, onOpenLab, onOpenReport }) {
   const scrollRef = useRef(null)
   const closeRef = useRef(null)
   const refs = [useRef(null), useRef(null), useRef(null)]
-  const { model } = useLunatechExport()
+  const { model, data } = useLunatechExport()
+  const demo = demoPairFromExport(data)
   const step = STEPS[sel]
 
   useEffect(() => {
@@ -232,7 +234,7 @@ export default function PipelineOverview({ onClose, onOpenLab, onOpenReport }) {
                 <div><h4>Why it matters</h4><p>{step.why}</p></div>
               </div>
               <div className="lt-pl-params">{step.params.map((p) => <span key={p}>{p}</span>)}</div>
-              <p className="lt-pl-evidence"><b>Measured</b>{step.evidence()}</p>
+              <p className="lt-pl-evidence"><b>Measured</b>{step.evidence(demo)}</p>
               {step.caveat && <p className="lt-pl-limit"><b>Honest limit</b>{step.caveat}</p>}
             </div>
           </article>

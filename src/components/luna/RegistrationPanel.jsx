@@ -1,5 +1,6 @@
 import React from 'react'
-import { DEMO_PAIR, ABLATION, STRESS, CAVEATS } from '../../data/registrationResults.js'
+import { useLunatechExport } from '../../hooks/useLunatechExport.js'
+import { demoPairFromExport, ABLATION, STRESS, CAVEATS } from '../../data/registrationResults.js'
 
 const fmt = (v, d = 2) => v.toFixed(d)
 
@@ -58,6 +59,7 @@ function StressHeatmap() {
 
 export function RegistrationReport({ onClose }) {
   const labels = ABLATION.map((a) => a.label)
+  const DEMO_PAIR = demoPairFromExport(useLunatechExport().data)
   React.useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
@@ -75,12 +77,18 @@ export function RegistrationReport({ onClose }) {
         </div>
 
         <div className="lt-reg-tiles">
-          <Tile k="RMSE" v={`${fmt(DEMO_PAIR.rmsePx, 3)} px`} s={`median ${fmt(DEMO_PAIR.medianPx, 3)} · p90 ${fmt(DEMO_PAIR.p90Px, 3)}`} />
-          <Tile k="SUB-PIXEL INLIERS" v={`${(DEMO_PAIR.subpixelRatio * 100).toFixed(1)}%`} s="error < 1 px" />
-          <Tile k="CERTIFIED POINTS" v={DEMO_PAIR.points} s={`grid coverage ${(DEMO_PAIR.gridCoverage * 100).toFixed(0)}%`} />
-          <Tile k="RUNTIME" v={`${fmt(DEMO_PAIR.runtimeS)} s`} s={`budget ${DEMO_PAIR.budgetS} s`} />
+          {DEMO_PAIR ? (
+            <>
+              <Tile k="RMSE" v={`${fmt(DEMO_PAIR.rmsePx, 3)} px`} s={`median ${fmt(DEMO_PAIR.medianPx, 3)} · p90 ${fmt(DEMO_PAIR.p90Px, 3)}`} />
+              <Tile k="SUB-PIXEL INLIERS" v={`${(DEMO_PAIR.subpixelRatio * 100).toFixed(1)}%`} s="error < 1 px" />
+              <Tile k="CERTIFIED POINTS" v={DEMO_PAIR.points} s={`grid coverage ${(DEMO_PAIR.gridCoverage * 100).toFixed(0)}%`} />
+              <Tile k="RUNTIME" v={`${fmt(DEMO_PAIR.runtimeS)} s`} s={`budget ${DEMO_PAIR.budgetS} s`} />
+            </>
+          ) : (
+            <Tile k="DEMO PAIR" v="—" s="lunatech_export.json not loaded" />
+          )}
         </div>
-        <div className="lt-reg-foot">Tiles: the notebook’s single demo pair (Kaggle OHRC crop). Charts below: mean over 10 pairs. The Match Lab runs a separate pair on NASA imagery.</div>
+        <div className="lt-reg-foot">Tiles: read live from public/data/lunatech_export.json, the same pair the Match Lab shows. Charts below: mean over 10 pairs from the notebook, which the single-pair export cannot reproduce.</div>
 
         <div className="lt-reg-grid">
           <Bars title="RMSE (px)" unit="d" values={ABLATION.map((a) => a.rmse)} labels={labels} max={0.35} lowerBetter />
